@@ -1,4 +1,4 @@
-#include "ui_promptbox.h"
+ï»¿#include "ui_promptbox.h"
 #include "promptbox.h"
 #include "adaptreslution.h"
 #include "Common.h"
@@ -16,9 +16,7 @@ PromptBox::PromptBox(QString title /*= ""*/, Level level /*= INFO*/, QString con
 	setTitle(title);
 	setLevel(level);
 	setContent(content);
-	
-	confirmBtn.isEmpty() ? ui->btn_confirm->setVisible(false) : ui->btn_confirm->setText(confirmBtn);
-	cancelBtn.isEmpty() ? ui->btn_cancel->setVisible(false) : ui->btn_cancel->setText(cancelBtn);
+	setBtnText(confirmBtn, cancelBtn);
 }
 
 PromptBox::~PromptBox()
@@ -42,7 +40,7 @@ void PromptBox::initUI()
 	m_scaleX = width / 1920.0;
 	m_scaleY = height / 1080.0;
 
-	//ÊÊÅä·Ö±æÂÊ
+	//é€‚é…åˆ†è¾¨ç‡
 	AdaptResolution(this, m_scaleX, m_scaleY);
 
 }
@@ -90,23 +88,35 @@ void PromptBox::setContent(QString content)
 	ui->tb_content->setText(content);
 }
 
+void PromptBox::setBtnText(QString confirmStr, QString cancelStr)
+{
+	if (confirmStr.isEmpty() && cancelStr.isEmpty())
+	{
+		ui->w_btns->setVisible(false);
+		return;
+	}
+	confirmStr.isEmpty() ? ui->btn_confirm->setVisible(false) : ui->btn_confirm->setText(confirmStr);
+	cancelStr.isEmpty() ? ui->btn_cancel->setVisible(false) : ui->btn_cancel->setText(cancelStr);
+
+}
+
 void PromptBox::vCenterContent()
 {
-	int textHeight = ui->tb_content->document()->size().height();			//ÎÄ±¾µÄ¸ß¶È
+	int textHeight = ui->tb_content->document()->size().height();			//æ–‡æœ¬çš„é«˜åº¦
 	if (textHeight == 0)
 		return;
 
-	int height = ui->tb_content->size().height();							//¿Ø¼şµÄ¸ß¶È
+	int height = ui->tb_content->size().height();							//æ§ä»¶çš„é«˜åº¦
 
-	QTextFrame* pFrame = ui->tb_content->document()->rootFrame();			//»ñÈ¡µ±Ç°ÎÄ±¾µÄframe
+	QTextFrame* pFrame = ui->tb_content->document()->rootFrame();			//è·å–å½“å‰æ–‡æœ¬çš„frame
 	QTextFrameFormat frameFormat = pFrame->frameFormat();
 
-	int topMargin = (int)frameFormat.topMargin();							//»ñÈ¡µ±Ç°µÄtopmargin
-	int docBoundingBoxHeight = textHeight - topMargin;						//documentµÄbounddingbox µÄ ¸ß¶È
+	int topMargin = (int)frameFormat.topMargin();							//è·å–å½“å‰çš„topmargin
+	int docBoundingBoxHeight = textHeight - topMargin;						//documentçš„bounddingbox çš„ é«˜åº¦
 
 	if (height < docBoundingBoxHeight)
 	{
-		topMargin = 2;														//ÉèÖÃÎª³£¹æµÄmargin
+		topMargin = 2;														//è®¾ç½®ä¸ºå¸¸è§„çš„margin
 	}
 	else
 	{
@@ -114,10 +124,14 @@ void PromptBox::vCenterContent()
 	}
 
 	frameFormat.setTopMargin(topMargin);
-	//ĞèÒªÉèÖÃborder²ÅÓĞĞ§
+	//éœ€è¦è®¾ç½®borderæ‰æœ‰æ•ˆï¼Œæ‰€ä»¥è¿™é‡ŒæŠŠborderé¢œè‰²è®¾ç½®æˆå’Œæ§ä»¶èƒŒæ™¯ä¸€ä¸ªé¢œè‰²
 	frameFormat.setBorder(1);
 	frameFormat.setBorderBrush(QColor(0xffffff));
 	pFrame->setFrameFormat(frameFormat);
+
+	//æ§ä»¶é«˜åº¦ä¹Ÿæ”¹å˜ä¸€ä¸‹
+	QTextDocument* document = ui->tb_content->document();
+	ui->tb_content->setFixedHeight(document->size().height() + 2);
 }
 
 void PromptBox::showEvent(QShowEvent*)
